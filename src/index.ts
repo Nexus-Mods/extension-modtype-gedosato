@@ -1,9 +1,8 @@
 import {gameSupported, getPath} from './gameSupport';
 
 import * as Promise from 'bluebird';
-import { remote } from 'electron';
 import * as path from 'path';
-import * as ReduxThunk from 'redux-thunk';
+import {} from 'redux-thunk';
 import { actions, log, types, util } from 'vortex-api';
 import * as Registry from 'winreg';
 
@@ -23,20 +22,26 @@ function getLocation(): Promise<string> {
     regKey.get('InstallPath', (err, result) => {
       if (err !== null) {
         return reject(new Error(err.message));
+      } else if (result === null) {
+        return reject(new Error('empty registry key'));
       }
       resolve(result.value);
     });
   });
 }
 
-function allDDS(files: string[]): boolean {
-  return files.find(file => path.extname(file).toLowerCase() !== '.dds') === undefined;
+function isTexture(file: string) {
+  return ['.dds', '.png'].indexOf(path.extname(file).toLowerCase()) !== -1;
+}
+
+function allTextures(files: string[]): boolean {
+  return files.find(file => !isTexture(file)) === undefined;
 }
 
 let askGeDoSaTo: () => Promise<boolean>;
 
 function testSupported(files: string[], gameId: string): Promise<types.ISupportedResult> {
-  const isGeDoSaTo = gameSupported(gameId) && allDDS(files);
+  const isGeDoSaTo = gameSupported(gameId) && allTextures(files);
   const prom = !isGeDoSaTo || (gedosatoPath !== undefined)
     ? Promise.resolve(isGeDoSaTo)
     : askGeDoSaTo();
@@ -59,7 +64,7 @@ function install(files: string[],
                  destinationPath: string,
                  gameId: string,
                  progressDelegate: types.ProgressDelegate): Promise<types.IInstallResult> {
-  const basePath = path.dirname(files.find(file => path.extname(file) === '.dds'));
+  const basePath = path.dirname(files.find(isTexture));
   const instructions: types.IInstruction[] = files
       .filter(filePath => !filePath.endsWith(path.sep)
                           && ((basePath === '.') || filePath.startsWith(basePath + path.sep)))
@@ -82,7 +87,7 @@ function init(context: types.IExtensionContext) {
   };
 
   const testGeDoSaTo = (instructions: types.IInstruction[]) => Promise.resolve(
-      allDDS(instructions.filter(instruction => instruction.type === 'copy')
+      allTextures(instructions.filter(instruction => instruction.type === 'copy')
                  .map(instruction => instruction.destination)));
 
   context.registerModType('gedosato', 50, isSupported, getOutputPath, testGeDoSaTo);
