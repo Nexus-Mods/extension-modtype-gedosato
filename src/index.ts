@@ -4,30 +4,23 @@ import * as Promise from 'bluebird';
 import * as path from 'path';
 import {} from 'redux-thunk';
 import { actions, log, types, util } from 'vortex-api';
-import * as Registry from 'winreg';
+import * as winapi from 'winapi-bindings';
 
 let gedosatoPath: string;
 
 function getLocation(): Promise<string> {
-  if (Registry === undefined) {
-    return Promise.resolve(undefined);
+  try {
+    const instPath = winapi.RegGetValue(
+      'HKEY_LOCAL_MACHINE',
+      'Software\\Wow6432Node\\Durante\\GeDoSaTo',
+      'InstallPath');
+    if (!instPath) {
+      throw new Error('empty registry key');
+    }
+    return Promise.resolve(instPath.value as string);
+  } catch (err) {
+    return Promise.reject(err);
   }
-
-  return new Promise<string>((resolve, reject) => {
-    const regKey = new Registry({
-      hive: Registry.HKLM,
-      key: '\\Software\\Wow6432Node\\Durante\\GeDoSaTo',
-    });
-
-    regKey.get('InstallPath', (err, result) => {
-      if (err !== null) {
-        return reject(new Error(err.message));
-      } else if (result === null) {
-        return reject(new Error('empty registry key'));
-      }
-      resolve(result.value);
-    });
-  });
 }
 
 function isTexture(file: string) {
