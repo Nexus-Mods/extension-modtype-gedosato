@@ -111,6 +111,9 @@ function init(context: types.IExtensionContext) {
         }
         gedosatoPath = location;
       })
+      .catch({ errno: 2 }, err => {
+        log('info', 'GeDoSaTo not installed');
+      })
       .catch(err => {
         log('warn', 'failed to look for GeDoSaTo', { err: err.message });
       })
