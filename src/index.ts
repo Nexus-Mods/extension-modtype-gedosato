@@ -1,6 +1,6 @@
 import {gameSupported, getPath} from './gameSupport';
 
-import * as Promise from 'bluebird';
+import Promise from 'bluebird';
 import * as path from 'path';
 import {} from 'redux-thunk';
 import { actions, log, types, util } from 'vortex-api';
