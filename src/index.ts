@@ -83,8 +83,8 @@ function init(context: types.IExtensionContext) {
       allTextures(instructions.filter(instruction => instruction.type === 'copy')
                  .map(instruction => instruction.destination)));
 
-  context.registerModType('gedosato', 50, isSupported, getOutputPath, testGeDoSaTo);
-  context.registerInstaller('gedosato', 50, testSupported, install);
+  context.registerModType('gedosato', 50, isSupported, getOutputPath, testGeDoSaTo as any);
+  context.registerInstaller('gedosato', 50, testSupported as any, install as any);
 
   askGeDoSaTo = (): Promise<boolean> => {
     return context.api.store.dispatch(actions.showDialog('question', 'GeDoSaTo not installed', {
@@ -116,8 +116,7 @@ function init(context: types.IExtensionContext) {
       })
       .catch(err => {
         log('warn', 'failed to look for GeDoSaTo', { err: err.message });
-      })
-      ;
+      }) as any;
   });
 
   return true;
