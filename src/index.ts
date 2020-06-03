@@ -3,7 +3,7 @@ import {gameSupported, getPath} from './gameSupport';
 import Promise from 'bluebird';
 import * as path from 'path';
 import {} from 'redux-thunk';
-import { actions, log, types, util } from 'vortex-api';
+import { actions, fs, log, types, util } from 'vortex-api';
 import * as winapi from 'winapi-bindings';
 
 let gedosatoPath: string;
@@ -17,14 +17,16 @@ function getLocation(): Promise<string> {
     if (!instPath) {
       throw new Error('empty registry key');
     }
-    return Promise.resolve(instPath.value as string);
+    return fs.statAsync(instPath.value)
+      .then(() => instPath.value);
   } catch (err) {
     return Promise.reject(err);
   }
 }
 
 function isTexture(file: string) {
-  return ['.dds', '.png'].indexOf(path.extname(file).toLowerCase()) !== -1;
+  return file.endsWith(path.sep)
+      || ['.dds', '.png'].includes(path.extname(file).toLowerCase());
 }
 
 function allTextures(files: string[]): boolean {
@@ -92,7 +94,7 @@ function init(context: types.IExtensionContext) {
               + 'To use it, you should cancel this installation now, get GeDoSaTo and then retry. '
               + 'If you continue now, the mod may not be installed correctly and will not work '
               + 'even after you install GeDoSaTo.<br />'
-              + 'Download from here: [url]http://blog.metaclassofnil.com/?page_id=582[/url]<br />',
+              + 'Download from here: [url]https://community.pcgamingwiki.com/files/file/897-gedosato/[/url]<br />',
     }, [
       { label: 'Cancel', default: true },
       { label: 'Ignore' },
