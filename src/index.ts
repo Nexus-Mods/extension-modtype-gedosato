@@ -113,7 +113,7 @@ function init(context: types.IExtensionContext) {
         }
         gedosatoPath = location;
       })
-      .catch({ errno: 2 }, err => {
+      .catch({ systemCode: 2 }, err => {
         log('info', 'GeDoSaTo not installed');
       })
       .catch(err => {
