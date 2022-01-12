@@ -17,8 +17,8 @@ function getLocation(): Promise<string> {
     if (!instPath) {
       throw new Error('empty registry key');
     }
-    return fs.statAsync(instPath.value)
-      .then(() => instPath.value);
+    return fs.statAsync(instPath.value as string)
+      .then(() => instPath.value as string);
   } catch (err) {
     return Promise.reject(err);
   }
